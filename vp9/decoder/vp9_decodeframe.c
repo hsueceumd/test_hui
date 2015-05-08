@@ -196,6 +196,9 @@ static void read_mv_probs(nmv_context *ctx, int allow_hp, vp9_reader *r) {
 
 static void setup_plane_dequants(VP9_COMMON *cm, MACROBLOCKD *xd, int q_index) {
   int i;
+#if CONFIG_TWO_STAGE
+  int j;
+#endif  // CONFIG_TWO_STAGE
   xd->plane[0].dequant = cm->y_dequant[q_index];
 #if CONFIG_NEW_QUANT
   xd->plane[0].dequant_val_nuq =
@@ -208,6 +211,12 @@ static void setup_plane_dequants(VP9_COMMON *cm, MACROBLOCKD *xd, int q_index) {
       (const dequant_val_type_nuq *)cm->y_dequant_val_nuq_pxd[q_index];
 #endif  // CONFIG_NEW_QUANT
 #endif  // CONFIG_TX_SKIP
+#if CONFIG_TWO_STAGE
+  for (j = 0; j < TWO_STAGE_MAX_QINDEX_PLUS; j++) {
+    int this_qindex = MIN(q_index + j, QINDEX_RANGE - 1);
+    xd->plane[0].dequant_stg1[j] = cm->y_dequant[this_qindex];
+  }
+#endif  // CONFIG_TWO_STAGE
 
   for (i = 1; i < MAX_MB_PLANE; i++) {
     xd->plane[i].dequant = cm->uv_dequant[q_index];
@@ -222,6 +231,12 @@ static void setup_plane_dequants(VP9_COMMON *cm, MACROBLOCKD *xd, int q_index) {
         (const dequant_val_type_nuq *)cm->uv_dequant_val_nuq_pxd[q_index];
 #endif  // CONFIG_NEW_QUANT
 #endif  // CONFIG_TX_SKIP
+#if CONFIG_TWO_STAGE
+    for (j = 0; j < TWO_STAGE_MAX_QINDEX_PLUS; j++) {
+      int this_qindex = MIN(q_index + j, QINDEX_RANGE - 1);
+      xd->plane[i].dequant_stg1[j] = cm->uv_dequant[this_qindex];
+    }
+#endif  // CONFIG_TWO_STAGE
   }
 }
 

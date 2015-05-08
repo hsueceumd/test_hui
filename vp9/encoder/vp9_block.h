@@ -52,6 +52,14 @@ struct macroblock_plane {
   cumbins_type_nuq *cumbins_nuq_pxd;
 #endif  // CONFIG_NEW_QUANT
 #endif  // CONFIG_TX_SKIP
+#if CONFIG_TWO_STAGE
+  int16_t *quant_fp_stg1[TWO_STAGE_MAX_QINDEX_PLUS];
+  int16_t *round_fp_stg1[TWO_STAGE_MAX_QINDEX_PLUS];
+  int16_t *quant_stg1[TWO_STAGE_MAX_QINDEX_PLUS];
+  int16_t *quant_shift_stg1[TWO_STAGE_MAX_QINDEX_PLUS];
+  int16_t *zbin_stg1[TWO_STAGE_MAX_QINDEX_PLUS];
+  int16_t *round_stg1[TWO_STAGE_MAX_QINDEX_PLUS];
+#endif  // CONFIG_TWO_STAGE
 
   int64_t quant_thred[2];
 };

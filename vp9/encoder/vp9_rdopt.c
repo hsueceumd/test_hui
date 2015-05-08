@@ -1385,6 +1385,9 @@ static int64_t rd_pick_intra_sub_8x8_y_mode(VP9_COMP *cpi, MACROBLOCK *mb,
 #if CONFIG_PALETTE
   mic->mbmi.palette_enabled[0] = 0;
 #endif  // CONFIG_PALETTE
+#if CONFIG_TWO_STAGE
+  mic->mbmi.two_stage_coding[0] = 0;
+#endif  // CONFIG_TWO_STAGE
 
   // Pick modes for each sub-block (of size 4x4, 4x8, or 8x4) in an 8x8 block.
   for (idy = 0; idy < 2; idy += num_4x4_blocks_high) {
@@ -1807,6 +1810,7 @@ static int64_t rd_pick_intra_sby_mode(VP9_COMP *cpi, MACROBLOCK *x,
   if (left_mi)
     palette_ctx += (left_mi->mbmi.palette_enabled[0] == 1);
 #endif  // CONFIG_PALETTE
+
   /* Y Search for intra prediction mode */
 #if CONFIG_FILTERINTRA
   for (mode_ext = 2 * DC_PRED; mode_ext <= 2 * TM_PRED + 1; mode_ext++) {
@@ -1821,14 +1825,16 @@ static int64_t rd_pick_intra_sby_mode(VP9_COMP *cpi, MACROBLOCK *x,
   for (mode = DC_PRED; mode <= TM_PRED; mode++) {
     int64_t local_tx_cache[TX_MODES];
     mic->mbmi.mode = mode;
-#endif
+#endif  // CONFIG_FILTERINTRA
 #if CONFIG_TX_SKIP
     mic->mbmi.tx_skip[0] = 0;
 #endif  // CONFIG_TX_SKIP
-
 #if CONFIG_PALETTE
     mic->mbmi.palette_enabled[0] = 0;
 #endif  // CONFIG_PALETTE
+#if CONFIG_TWO_STAGE
+    mic->mbmi.two_stage_coding[0] = 1;
+#endif  // CONFIG_TWO_STAGE
 
     super_block_yrd(cpi, x, &this_rate_tokenonly, &this_distortion,
                     &s, NULL, bsize, local_tx_cache, best_rd);
@@ -2382,10 +2388,9 @@ static int64_t rd_pick_intra_sbuv_mode(VP9_COMP *cpi, MACROBLOCK *x,
   uint8_t *src_u = x->plane[1].src.buf;
   uint8_t *src_v = x->plane[2].src.buf;
   MB_MODE_INFO *mbmi = &xd->mi[0].src_mi->mbmi;
-
-  xd->mi[0].src_mi->mbmi.palette_enabled[1] = 0;
 #endif  // CONFIG_PALETTE
   vpx_memset(x->skip_txfm, 0, sizeof(x->skip_txfm));
+
 #if CONFIG_FILTERINTRA
   (void) max_tx_size;
   for (mode_ext = 2 * DC_PRED; mode_ext <= 2 * TM_PRED + 1; mode_ext++) {
@@ -2408,7 +2413,13 @@ static int64_t rd_pick_intra_sbuv_mode(VP9_COMP *cpi, MACROBLOCK *x,
     xd->mi[0].src_mi->mbmi.uv_mode = mode;
 #if CONFIG_TX_SKIP
     xd->mi[0].src_mi->mbmi.tx_skip[1] = 0;
-#endif
+#endif  // CONFIG_TX_SKIP
+#if CONFIG_PALETTE
+    xd->mi[0].src_mi->mbmi.palette_enabled[1] = 0;
+#endif  // CONFIG_PALETTE
+#if CONFIG_TWO_STAGE
+    xd->mi[0].src_mi->mbmi.two_stage_coding[1] = 0;
+#endif  // CONFIG_TWO_STAGE
 
     if (!super_block_uvrd(cpi, x, &this_rate_tokenonly,
                           &this_distortion, &s, &this_sse, bsize, best_rd))

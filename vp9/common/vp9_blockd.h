@@ -266,6 +266,10 @@ typedef struct {
   uint8_t *palette_color_map;
   uint8_t *palette_uv_color_map;
 #endif  // CONFIG_PALETTE
+#if CONFIG_TWO_STAGE
+  int two_stage_coding[PLANE_TYPES];
+  int qindex_plus;
+#endif  // CONFIG_TWO_STAGE
 } MB_MODE_INFO;
 
 typedef struct MODE_INFO {
@@ -338,11 +342,14 @@ struct macroblockd_plane {
   const dequant_val_type_nuq *dequant_val_nuq_pxd;
 #endif  // CONFIG_NEW_QUANT
 #endif  // CONFIG_TX_SKIP
+#if CONFIG_TWO_STAGE
+  const int16_t *dequant_stg1[TWO_STAGE_MAX_QINDEX_PLUS];
+#endif  // CONFIG_TWO_STAGE
   ENTROPY_CONTEXT *above_context;
   ENTROPY_CONTEXT *left_context;
 #if CONFIG_PALETTE
   uint8_t *color_index_map;
-#endif
+#endif  // CONFIG_PALETTE
 };
 
 #define BLOCK_OFFSET(x, i) ((x) + (i) * 16)
