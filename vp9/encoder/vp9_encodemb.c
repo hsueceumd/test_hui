@@ -2766,6 +2766,12 @@ static void encode_block_intra_2stg(int plane, int block, BLOCK_SIZE plane_bsize
   uint8_t *src, *dst;
   int16_t *src_diff;
   uint16_t *eob = &p->eobs[block];
+#if CONFIG_TWO_STAGE
+  tran_low_t *coeff_stg2 = BLOCK_OFFSET(p->coeff_stg2, block);
+  tran_low_t *qcoeff_stg2 = BLOCK_OFFSET(p->qcoeff_stg2, block);
+  tran_low_t *dqcoeff_stg2 = BLOCK_OFFSET(pd->dqcoeff_stg2, block);
+  uint16_t *eob_stg2 = &p->eobs_stg2[block];
+#endif  // CONFIGT_TWO_STAGE
   const int src_stride = p->src.stride;
   const int dst_stride = pd->dst.stride;
   int i, j;

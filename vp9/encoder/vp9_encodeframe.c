@@ -807,6 +807,22 @@ static void update_state(VP9_COMP *cpi, PICK_MODE_CONTEXT *ctx,
     p[i].eobs = ctx->eobs_pbuf[i][2];
   }
 
+#if CONFIG_TWO_STAGE
+  for (i = 0; i < max_plane; ++i) {
+    p[i].coeff_stg2 = ctx->coeff_pbuf_stg2[i][1];
+    p[i].qcoeff_stg2 = ctx->qcoeff_pbuf_stg2[i][1];
+    pd[i].dqcoeff_stg2 = ctx->dqcoeff_pbuf_stg2[i][1];
+    p[i].eobs_stg2 = ctx->eobs_pbuf_stg2[i][1];
+  }
+
+  for (i = max_plane; i < MAX_MB_PLANE; ++i) {
+    p[i].coeff_stg2 = ctx->coeff_pbuf_stg2[i][2];
+    p[i].qcoeff_stg2 = ctx->qcoeff_pbuf_stg2[i][2];
+    pd[i].dqcoeff_stg2 = ctx->dqcoeff_pbuf_stg2[i][2];
+    p[i].eobs_stg2 = ctx->eobs_pbuf_stg2[i][2];
+  }
+#endif  // CONFIG_TWO_STAGE
+
 #if CONFIG_PALETTE
   for (i = 0; i < 2; i++) {
     pd[i].color_index_map = ctx->color_index_map[i];
@@ -1283,11 +1299,21 @@ static void rd_pick_sb_modes(VP9_COMP *cpi, const TileInfo *const tile,
     pd[i].dqcoeff = ctx->dqcoeff_pbuf[i][0];
     p[i].eobs = ctx->eobs_pbuf[i][0];
   }
+
+#if CONFIG_TWO_STAGE
+  for (i = 0; i < MAX_MB_PLANE; ++i) {
+    p[i].coeff_stg2 = ctx->coeff_pbuf_stg2[i][0];
+    p[i].qcoeff_stg2 = ctx->qcoeff_pbuf_stg2[i][0];
+    pd[i].dqcoeff_stg2 = ctx->dqcoeff_pbuf_stg2[i][0];
+    p[i].eobs_stg2 = ctx->eobs_pbuf_stg2[i][0];
+  }
+#endif  // CONFIG_TWO_STAGE
+
 #if CONFIG_PALETTE
   for (i = 0; i < 2; ++i) {
     pd[i].color_index_map = ctx->color_index_map[i];
   }
-#endif
+#endif  // CONFIG_PALETTE
   ctx->is_coded = 0;
   ctx->skippable = 0;
   ctx->pred_pixel_ready = 0;

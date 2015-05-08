@@ -53,6 +53,10 @@ struct macroblock_plane {
 #endif  // CONFIG_NEW_QUANT
 #endif  // CONFIG_TX_SKIP
 #if CONFIG_TWO_STAGE
+  DECLARE_ALIGNED(16, int16_t, src_diff_stg2[64 * 64]);
+  tran_low_t *coeff_stg2;
+  tran_low_t *qcoeff_stg2;
+  uint16_t *eobs_stg2;
   int16_t *quant_fp_stg1[TWO_STAGE_MAX_QINDEX_PLUS];
   int16_t *round_fp_stg1[TWO_STAGE_MAX_QINDEX_PLUS];
   int16_t *quant_stg1[TWO_STAGE_MAX_QINDEX_PLUS];

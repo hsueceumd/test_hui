@@ -343,6 +343,7 @@ struct macroblockd_plane {
 #endif  // CONFIG_NEW_QUANT
 #endif  // CONFIG_TX_SKIP
 #if CONFIG_TWO_STAGE
+  tran_low_t *dqcoeff_stg2;
   const int16_t *dequant_stg1[TWO_STAGE_MAX_QINDEX_PLUS];
 #endif  // CONFIG_TWO_STAGE
   ENTROPY_CONTEXT *above_context;
@@ -398,6 +399,10 @@ typedef struct macroblockd {
   int corrupted;
 
   DECLARE_ALIGNED(16, tran_low_t, dqcoeff[MAX_MB_PLANE][64 * 64]);
+#if CONFIG_TWO_STAGE
+  DECLARE_ALIGNED(16, tran_low_t, dqcoeff_stg2[MAX_MB_PLANE][64 * 64]);
+#endif  // CONFIG_TWO_STAGE
+
 #if CONFIG_PALETTE
   DECLARE_ALIGNED(16, uint8_t, color_index_map[2][64 * 64]);
   DECLARE_ALIGNED(16, uint8_t, palette_map_buffer[64 * 64]);
