@@ -2104,8 +2104,8 @@ void vp9_init_plane_quantizers(VP9_COMP *cpi, MACROBLOCK *x) {
     x->plane[0].round_stg1[j] = quants->y_round[this_qindex];
     xd->plane[0].dequant_stg1[j] = cm->y_dequant[this_qindex];
   }
-  printf("%d %d\n", xd->plane[0].dequant_stg1[0][0],
-         xd->plane[0].dequant_stg1[TWO_STAGE_MAX_QINDEX_PLUS - 1][0]);
+  //printf("%d %d\n", xd->plane[0].dequant_stg1[0][0],
+   //      xd->plane[0].dequant_stg1[TWO_STAGE_MAX_QINDEX_PLUS - 1][0]);
 #endif  // CONFIG_TWO_STAGE
 
   x->plane[0].quant_thred[0] = x->plane[0].zbin[0] * x->plane[0].zbin[0];

@@ -2766,14 +2766,14 @@ static void encode_block_intra_2stg(int plane, int block, BLOCK_SIZE plane_bsize
   uint8_t *src, *dst;
   int16_t *src_diff;
   uint16_t *eob = &p->eobs[block];
-#if CONFIG_TWO_STAGE
   tran_low_t *coeff_stg2 = BLOCK_OFFSET(p->coeff_stg2, block);
   tran_low_t *qcoeff_stg2 = BLOCK_OFFSET(p->qcoeff_stg2, block);
   tran_low_t *dqcoeff_stg2 = BLOCK_OFFSET(pd->dqcoeff_stg2, block);
   uint16_t *eob_stg2 = &p->eobs_stg2[block];
-#endif  // CONFIGT_TWO_STAGE
   const int src_stride = p->src.stride;
   const int dst_stride = pd->dst.stride;
+  int bs = 4 << tx_size;
+
   int i, j;
 #if CONFIG_NEW_QUANT
   const uint8_t* band = get_band_translate(tx_size);
@@ -2869,14 +2869,18 @@ static void encode_block_intra_2stg(int plane, int block, BLOCK_SIZE plane_bsize
                                  qcoeff, dqcoeff, eob,
                                  scan_order->scan, band);
 #else
-        vp9_quantize_b_32x32(coeff, 1024, x->skip_block, p->zbin, p->round,
-                             p->quant, p->quant_shift, qcoeff, dqcoeff,
-                             pd->dequant, eob, scan_order->scan,
-                             scan_order->iscan);
+        vp9_quantize_b_32x32(coeff, 1024, x->skip_block,
+                             p->zbin_stg1[mbmi->qindex_plus],
+                             p->round_stg1[mbmi->qindex_plus],
+                             p->quant_stg1[mbmi->qindex_plus],
+                             p->quant_shift_stg1[mbmi->qindex_plus],
+                             qcoeff, dqcoeff,
+                             pd->dequant_stg1[mbmi->qindex_plus], eob,
+                             scan_order->scan, scan_order->iscan);
 #endif  // CONFIG_NEW_QUANT
+        if (*eob)
+          vp9_idct32x32_add(dqcoeff, dst, dst_stride, *eob);
       }
-      if (!x->skip_encode && *eob)
-        vp9_idct32x32_add(dqcoeff, dst, dst_stride, *eob);
       break;
     case TX_16X16:
       tx_type = get_tx_type(pd->plane_type, xd);
@@ -2909,14 +2913,17 @@ static void encode_block_intra_2stg(int plane, int block, BLOCK_SIZE plane_bsize
                            qcoeff, dqcoeff, eob,
                            scan_order->scan, band);
 #else
-        vp9_quantize_b(coeff, 256, x->skip_block, p->zbin, p->round,
-                       p->quant, p->quant_shift, qcoeff, dqcoeff,
-                       pd->dequant, eob, scan_order->scan,
-                       scan_order->iscan);
+        vp9_quantize_b(coeff, 256, x->skip_block,
+                       p->zbin_stg1[mbmi->qindex_plus],
+                       p->round_stg1[mbmi->qindex_plus],
+                       p->quant_stg1[mbmi->qindex_plus],
+                       p->quant_shift_stg1[mbmi->qindex_plus], qcoeff, dqcoeff,
+                       pd->dequant_stg1[mbmi->qindex_plus], eob,
+                       scan_order->scan, scan_order->iscan);
 #endif  // CONFIG_NEW_QUANT
+        if (*eob)
+          vp9_iht16x16_add(tx_type, dqcoeff, dst, dst_stride, *eob);
       }
-      if (!x->skip_encode && *eob)
-        vp9_iht16x16_add(tx_type, dqcoeff, dst, dst_stride, *eob);
       break;
     case TX_8X8:
       tx_type = get_tx_type(pd->plane_type, xd);
@@ -2949,14 +2956,17 @@ static void encode_block_intra_2stg(int plane, int block, BLOCK_SIZE plane_bsize
                            qcoeff, dqcoeff, eob,
                            scan_order->scan, band);
 #else
-        vp9_quantize_b(coeff, 64, x->skip_block, p->zbin, p->round, p->quant,
-                       p->quant_shift, qcoeff, dqcoeff,
-                       pd->dequant, eob, scan_order->scan,
-                       scan_order->iscan);
+        vp9_quantize_b(coeff, 64, x->skip_block,
+                       p->zbin_stg1[mbmi->qindex_plus],
+                       p->round_stg1[mbmi->qindex_plus],
+                       p->quant_stg1[mbmi->qindex_plus],
+                       p->quant_shift_stg1[mbmi->qindex_plus], qcoeff, dqcoeff,
+                       pd->dequant_stg1[mbmi->qindex_plus], eob,
+                       scan_order->scan, scan_order->iscan);
 #endif  // CONFIG_NEW_QUANT
+        if (*eob)
+          vp9_iht8x8_add(tx_type, dqcoeff, dst, dst_stride, *eob);
       }
-      if (!x->skip_encode && *eob)
-        vp9_iht8x8_add(tx_type, dqcoeff, dst, dst_stride, *eob);
       break;
     case TX_4X4:
       tx_type = get_tx_type_4x4(pd->plane_type, xd, block);
@@ -2993,28 +3003,51 @@ static void encode_block_intra_2stg(int plane, int block, BLOCK_SIZE plane_bsize
                            qcoeff, dqcoeff, eob,
                            scan_order->scan, band);
 #else
-        vp9_quantize_b(coeff, 16, x->skip_block, p->zbin, p->round, p->quant,
-                       p->quant_shift, qcoeff, dqcoeff,
-                       pd->dequant, eob, scan_order->scan,
-                       scan_order->iscan);
+        vp9_quantize_b(coeff, 16, x->skip_block,
+                       p->zbin_stg1[mbmi->qindex_plus],
+                       p->round_stg1[mbmi->qindex_plus],
+                       p->quant_stg1[mbmi->qindex_plus],
+                       p->quant_shift_stg1[mbmi->qindex_plus], qcoeff, dqcoeff,
+                       pd->dequant_stg1[mbmi->qindex_plus], eob,
+                       scan_order->scan, scan_order->iscan);
 #endif  // CONFIG_NEW_QUANT
-      }
-
-      if (!x->skip_encode && *eob) {
-        if (tx_type == DCT_DCT)
-          // this is like vp9_short_idct4x4 but has a special case around eob<=1
-          // which is significant (not just an optimization) for the lossless
-          // case.
-          x->itxm_add(dqcoeff, dst, dst_stride, *eob);
-        else
-          vp9_iht4x4_16_add(dqcoeff, dst, dst_stride, tx_type);
+        if (*eob) {
+          if (tx_type == DCT_DCT)
+            x->itxm_add(dqcoeff, dst, dst_stride, *eob);
+          else
+            vp9_iht4x4_16_add(dqcoeff, dst, dst_stride, tx_type);
+        }
       }
       break;
     default:
       assert(0);
       break;
   }
-  if (*eob)
+
+      // second stage coding
+  if (!x->skip_recode && 1) {
+    vp9_subtract_block(bs, bs, src_diff, diff_stride,
+                       src, src_stride, dst, dst_stride);
+    vp9_tx_identity(src_diff, coeff_stg2, diff_stride, bs, 3);
+
+    if (tx_size <= TX_16X16) {
+      vp9_quantize_b(coeff_stg2, bs * bs, x->skip_block,
+                     p->zbin, p->round, p->quant, p->quant_shift,
+                     qcoeff_stg2, dqcoeff_stg2, pd->dequant, eob_stg2,
+                     scan_order->scan, scan_order->iscan);
+    } else if (tx_size == TX_32X32 && 0) {
+      vp9_quantize_b_32x32(coeff_stg2, 1024, x->skip_block,
+                           p->zbin, p->round, p->quant, p->quant_shift,
+                           qcoeff_stg2, dqcoeff_stg2, pd->dequant, eob_stg2,
+                           scan_order->scan, scan_order->iscan);
+    }/**/
+    if (*eob_stg2 && USE_2STG)
+      vp9_tx_identity_add(dqcoeff_stg2, dst, dst_stride, bs, 3);
+  }
+
+  *eob_stg2 = 0;
+
+  if (*eob || *eob_stg2)
     *(args->skip) = 0;
 }
 #endif  // CONFIG_TWO_STAGE

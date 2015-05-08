@@ -651,7 +651,11 @@ static void predict_and_reconstruct_intra_block(int plane, int block,
                             eob);
 #if CONFIG_TX_SKIP
     no_coeff = !eob;
-#endif
+#endif  // CONFIG_TX_SKIP
+#if CONFIG_TWO_STAGE
+    inverse_transform_block(xd, plane, block, tx_size, dst, pd->dst.stride,
+                            eob);
+#endif  // CONFIG_TWO_STAGE
   }
 
 #if CONFIG_TX_SKIP

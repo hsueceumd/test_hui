@@ -31,6 +31,7 @@ extern int tx_skip_q_thresh_inter;
 extern int tx_skip_q_thresh_intra;
 #endif  // CONFIG_TX_SKIP
 #if CONFIG_TWO_STAGE
+#define USE_2STG 0
 #define TWO_STAGE_MAX_QINDEX_PLUS 32
 #define TWO_STAGE_QINDEX_PLUS_STEP 1
 #endif  // CONFIG_TWO_STAGE

@@ -386,6 +386,10 @@ static void tokenize_b(int plane, int block, BLOCK_SIZE plane_bsize,
   *tp = t;
 
   vp9_set_contexts(xd, pd, plane_bsize, tx_size, c > 0, aoff, loff);
+
+#if CONFIG_TWO_STAGE
+
+#endif  // CONFIG_TWO_STAGE
 }
 
 #if CONFIG_TX_SKIP

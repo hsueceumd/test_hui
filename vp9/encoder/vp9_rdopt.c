@@ -1834,6 +1834,7 @@ static int64_t rd_pick_intra_sby_mode(VP9_COMP *cpi, MACROBLOCK *x,
 #endif  // CONFIG_PALETTE
 #if CONFIG_TWO_STAGE
     mic->mbmi.two_stage_coding[0] = 1;
+    mic->mbmi.qindex_plus = 0;
 #endif  // CONFIG_TWO_STAGE
 
     super_block_yrd(cpi, x, &this_rate_tokenonly, &this_distortion,
